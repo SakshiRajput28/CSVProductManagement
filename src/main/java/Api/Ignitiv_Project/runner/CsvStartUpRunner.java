@@ -15,7 +15,7 @@ public class CsvStartUpRunner implements CommandLineRunner {
     private CSVProcessorService csvProcessorService;
 
     private static final String FILE_PATH =
-            "C:/Users/Sakshi S Rajput/Desktop/catalogs/product9.csv";
+            "C:/Users/Sakshi S Rajput/Desktop/catalogs/product8.csv";
 
     @Override
     public void run(String... args) throws Exception {
@@ -50,7 +50,7 @@ public class CsvStartUpRunner implements CommandLineRunner {
 
                 Path changedFile = (Path) event.context();
 
-                if (changedFile.toString().equals("product9.csv")) {
+                if (changedFile.toString().equals("product8.csv")) {
 
                     System.out.println("CSV Updated! Processing...");
 
