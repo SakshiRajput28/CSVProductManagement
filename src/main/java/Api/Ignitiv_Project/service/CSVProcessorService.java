@@ -42,7 +42,7 @@ public class CSVProcessorService {
         long start = System.currentTimeMillis();
         
  
-        // ✅ Fully read CSV into memory
+        // Fully read CSV into memory
         List<Map<String, String>> rows = CSVUtils.readCsv(path);
  
         if (rows == null || rows.isEmpty()) {
@@ -50,7 +50,7 @@ public class CSVProcessorService {
             return;
         }
  
-        // ✅ Process attributes from first row
+        // Process attributes from first row
         Map<String, String> firstRow = rows.get(0);
         int masterCatalogId = Integer.parseInt(firstRow.get("masterCatalogId"));
         String productTypeName = firstRow.get("productTypeName");
@@ -60,10 +60,21 @@ public class CSVProcessorService {
  
         System.out.println("Step 1: Processing attributes...");
         for (String column : firstRow.keySet()) {
-            if (!column.startsWith("tenant~")) continue;
+//            if (!column.startsWith("tenant~")) continue;
+// 
+//            attributeService.createAttributeIfNotExists(column, firstRow.get(column), masterCatalogId);
+//            attributeService.attachAttributeToProductType(productTypeId, column);
+        	if (!column.startsWith("tenant~")) continue;
+        	 
+            attributeService.createAttributeIfNotExists(
+                    column,
+                    rows.get(0).get(column),
+                    masterCatalogId);
  
-            attributeService.createAttributeIfNotExists(column, firstRow.get(column), masterCatalogId);
-            attributeService.attachAttributeToProductType(productTypeId, column);
+            attributeService.attachAttributeToProductType(
+                    productTypeId,
+                    column);
+        
         }
  
         System.out.println("Step 2: Processing products...");
@@ -71,25 +82,25 @@ public class CSVProcessorService {
         int chunkSize = 50;                              //for 500 products 500 / 50 = 10 chunks
         List<List<Map<String, String>>> allChunks = new ArrayList<>();
  
-        // ✅ Split rows into chunks and copy each chunk to a new list
+        // Split rows into chunks and copy each chunk to a new list
         for (int i = 0; i < rows.size(); i += chunkSize) {
             int end = Math.min(i + chunkSize, rows.size());
             List<Map<String, String>> chunk = new ArrayList<>(rows.subList(i, end));
             allChunks.add(chunk);
         }
  
-        // ✅ Submit all chunks to executor
+        // Submit all chunks to executor
         for (List<Map<String, String>> chunk : allChunks) {
             chunkExecutor.processChunk(chunk, builderService, productsApi);
         }
  
-        // ✅ Wait for all threads to finish before moving file
+        // Wait for all threads to finish before moving file
         chunkExecutor.waitForCompletion();
  
         long end = System.currentTimeMillis();
         System.out.println("All products processed in " + (end - start) / 1000 + " seconds");
  
-        // ✅ Move file safely
+        // Move file safely
         moveFileToRawFolder(path);
     }
  
@@ -102,7 +113,7 @@ public class CSVProcessorService {
  
             Path targetPath = new File(rawFolder, sourceFile.getName()).toPath();
  
-            // ✅ small delay to release file handles (Windows safety)
+            // small delay to release file handles (Windows safety)
             Thread.sleep(200);
  
             Files.move(sourceFile.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
@@ -112,4 +123,5 @@ public class CSVProcessorService {
             System.out.println("Error moving file: " + e.getMessage());
         }
     }
-}      
+}    
+

@@ -22,7 +22,7 @@ public class AttributeService {
     private KiboConfiguration configuration;
 
  
-	// 🔥 CREATE ATTRIBUTE IF NOT EXISTS
+	// CREATE ATTRIBUTE IF NOT EXISTS
 	public void createAttributeIfNotExists(String attributeCode, String sampleValue, int masterCatalogId) {
  
 		try {
@@ -48,7 +48,6 @@ public class AttributeService {
 			attribute.setNamespace("Tenant");
 			attribute.setMasterCatalogId(masterCatalogId);
  
-           // 🔥 VERY IMPORTANT FLAGS
 			attribute.setIsProperty(true);
 			attribute.setIsOption(false);
 			attribute.setIsExtra(false);
@@ -73,7 +72,7 @@ public class AttributeService {
 		}
 	}
  
-	// 🔥 ATTACH ATTRIBUTE TO PRODUCT TYPE
+	// ATTACH ATTRIBUTE TO PRODUCT TYPE
  
 	public void attachAttributeToProductType(int productTypeId, String attributeCode) {
  
@@ -100,7 +99,7 @@ public class AttributeService {
 				}
 			}
  
-			// 🔥 Rebuild list WITHOUT sort order
+			// Rebuild list WITHOUT sort order
 			List<AttributeInProductType> updatedProps = new ArrayList<>();
  
 			for (AttributeInProductType p : existingProps) {
@@ -127,4 +126,4 @@ public class AttributeService {
 			System.out.println("Error attaching attribute: " + e.getMessage());
 		}
 	}
-}     
+}  
