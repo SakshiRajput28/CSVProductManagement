@@ -59,22 +59,54 @@ public class CSVProcessorService {
         int productTypeId = productType.getId();
  
         System.out.println("Step 1: Processing attributes...");
-        for (String column : firstRow.keySet()) {
-//            if (!column.startsWith("tenant~")) continue;
+//        for (String column : firstRow.keySet()) {
+////            if (!column.startsWith("tenant~")) continue;
+//// 
+////            attributeService.createAttributeIfNotExists(column, firstRow.get(column), masterCatalogId);
+////            attributeService.attachAttributeToProductType(productTypeId, column);
+//        	if (!column.startsWith("tenant~")) continue;
+//        	 
+//            attributeService.createAttributeIfNotExists(
+//                    column,
+//                    rows.get(0).get(column),
+//                    masterCatalogId);
 // 
-//            attributeService.createAttributeIfNotExists(column, firstRow.get(column), masterCatalogId);
-//            attributeService.attachAttributeToProductType(productTypeId, column);
-        	if (!column.startsWith("tenant~")) continue;
-        	 
-            attributeService.createAttributeIfNotExists(
-                    column,
-                    rows.get(0).get(column),
-                    masterCatalogId);
- 
-            attributeService.attachAttributeToProductType(
-                    productTypeId,
-                    column);
+//            attributeService.attachAttributeToProductType(
+//                    productTypeId,
+//                    column);
+//        
+//        }
         
+        for (String column : rows.get(0).keySet()) {
+        	 
+            if (!column.startsWith("tenant~")) continue;
+ 
+            String value = rows.get(0).get(column);
+ 
+            // 🔥 Detect EXTRA attribute (Yes/No values)
+            if ("true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value)) {
+ 
+                attributeService.createExtraAttributeIfNotExists(
+                        column,
+                        masterCatalogId);
+ 
+                attributeService.attachExtraToProductType(
+                        productTypeId,
+                        column);
+            }
+ 
+            // 🔥 Otherwise treat as PROPERTY
+            else {
+ 
+                attributeService.createAttributeIfNotExists(
+                        column,
+                        value,
+                        masterCatalogId);
+ 
+                attributeService.attachAttributeToProductType(
+                        productTypeId,
+                        column);
+            }
         }
  
         System.out.println("Step 2: Processing products...");

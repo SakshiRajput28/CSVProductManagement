@@ -126,4 +126,112 @@ public class AttributeService {
 			System.out.println("Error attaching attribute: " + e.getMessage());
 		}
 	}
+	
+	// 🔥 CREATE EXTRA ATTRIBUTE IF NOT EXISTS
+		public void createExtraAttributeIfNotExists(String attributeCode, int masterCatalogId) {
+	 
+		    try {
+	 
+		        ProductAttributesApi api = ProductAttributesApi.builder()
+		                .withConfig(configuration)
+		                .build();
+	 
+		        String cleanCode = attributeCode.replace("tenant~", "");
+		        String fqn = "tenant~" + cleanCode;
+	 
+		        // Check if exists
+		        try {
+		            api.getAttribute(fqn, String.valueOf(masterCatalogId));
+		            return;
+		        } catch (ApiException e) {
+		            if (e.getCode() != 404)
+		                throw e;
+		        }
+	 
+		        CatalogAdminsAttribute attribute = new CatalogAdminsAttribute();
+	 
+		        attribute.setAttributeCode(cleanCode);
+		        attribute.setAdminName(cleanCode);
+		        attribute.setNamespace("Tenant");
+		        attribute.setMasterCatalogId(masterCatalogId);
+	 
+		        // 🔥 EXTRA ATTRIBUTE FLAGS
+		        attribute.setIsProperty(false);
+		        attribute.setIsOption(false);
+		        attribute.setIsExtra(true);
+	 
+		        attribute.setInputType("YesNo");
+		        attribute.setDataType("Boolean");
+		        attribute.setValueType("AdminEntered");
+	 
+		        CatalogAdminsAttributeLocalizedContent content =
+		                new CatalogAdminsAttributeLocalizedContent();
+	 
+		        content.setLocaleCode("en-US");
+		        content.setName(cleanCode);
+	 
+		        attribute.setContent(content);
+	 
+		        api.addAttribute(attribute);
+	 
+		        System.out.println("Created EXTRA attribute: " + cleanCode);
+	 
+		    } catch (Exception e) {
+		        System.err.println("Error creating extra attribute: " + e.getMessage());
+		    }
+		}
+		
+		// 🔥 ATTACH EXTRA ATTRIBUTE TO PRODUCT TYPE
+		public void attachExtraToProductType(int productTypeId, String attributeCode) {
+	 
+		    try {
+	 
+		        ProductTypesApi api = ProductTypesApi.builder()
+		                .withConfig(configuration)
+		                .build();
+	 
+		        ProductType productType = api.getProductType(productTypeId);
+	 
+		        List<AttributeInProductType> existingExtras = productType.getExtras();
+	 
+		        if (existingExtras == null) {
+		            existingExtras = new ArrayList<>();
+		        }
+	 
+		        String cleanCode = attributeCode.replace("tenant~", "");
+		        String fqn = "tenant~" + cleanCode;
+	 
+		        // Check if already attached
+		        for (AttributeInProductType e : existingExtras) {
+		            if (fqn.equalsIgnoreCase(e.getAttributeFQN())) {
+		                System.out.println("Extra already attached: " + cleanCode);
+		                return;
+		            }
+		        }
+	 
+		        List<AttributeInProductType> updatedExtras = new ArrayList<>();
+	 
+		        for (AttributeInProductType e : existingExtras) {
+		            AttributeInProductType copy = new AttributeInProductType();
+		            copy.setAttributeFQN(e.getAttributeFQN());
+		            copy.setIsRequiredByAdmin(e.getIsRequiredByAdmin());
+		            updatedExtras.add(copy);
+		        }
+	 
+		        AttributeInProductType newExtra = new AttributeInProductType();
+		        newExtra.setAttributeFQN(fqn);
+		        newExtra.setIsRequiredByAdmin(false);
+	 
+		        updatedExtras.add(newExtra);
+	 
+		        productType.setExtras(updatedExtras);
+	 
+		        api.updateProductType(productTypeId, productType);
+	 
+		        System.out.println("Attached EXTRA: " + cleanCode);
+	 
+		    } catch (Exception e) {
+		        System.out.println("Error attaching extra: " + e.getMessage());
+		    }
+		}
 }  
