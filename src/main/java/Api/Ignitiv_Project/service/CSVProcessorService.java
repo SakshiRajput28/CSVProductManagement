@@ -79,7 +79,7 @@ public class CSVProcessorService {
  
         System.out.println("Step 2: Processing products...");
  
-        int chunkSize = 50;                              //for 500 products 500 / 50 = 10 chunks
+        int chunkSize = 200;                              //for 500 products 500 / 50 = 10 chunks
         List<List<Map<String, String>>> allChunks = new ArrayList<>();
  
         // Split rows into chunks and copy each chunk to a new list

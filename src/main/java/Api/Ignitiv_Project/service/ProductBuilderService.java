@@ -61,7 +61,7 @@ public class ProductBuilderService {
 //		String fulfillment = row.get("fulfillmentTypesSupported");
 //
 //		return product;
-//		 🔥 CALL VARIATION UPDATE HERE (BEFORE RETURN)
+//		 CALL VARIATION UPDATE HERE (BEFORE RETURN)
 	    String productCode = row.get("productCode");
 	    String variationKey = row.get("variationkey");
 	    String fulfillment = row.get("fulfillmentTypesSupported");

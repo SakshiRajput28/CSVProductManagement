@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.kibocommerce.sdk.catalogadministration.api.ProductsApi;
@@ -16,17 +17,10 @@ import jakarta.annotation.PreDestroy;
 @Service
 public class ChunkExecutorService {
 
-    private final ExecutorService executor =
-            new ThreadPoolExecutor(
-                    4,
-                    4,
-                    60L,
-                    TimeUnit.SECONDS,
-                    new LinkedBlockingQueue<>(100),
-                    new ThreadPoolExecutor.CallerRunsPolicy()
-            );
+	@Autowired
+    private ExecutorService executor;
 
-    private final Semaphore rateLimiter = new Semaphore(5);
+    private final Semaphore rateLimiter = new Semaphore(50);
 
     public void processChunk(List<Map<String, String>> chunk,
             ProductBuilderService builder,

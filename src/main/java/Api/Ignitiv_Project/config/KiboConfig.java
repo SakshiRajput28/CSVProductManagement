@@ -2,6 +2,9 @@ package Api.Ignitiv_Project.config;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -61,7 +64,19 @@ public class KiboConfig {
     }
 
     @Bean
-    public ExecutorService executorService() {
-        return Executors.newFixedThreadPool(5);
+    public ExecutorService executorService(
+            @Value("${executor.corePoolSize}") int corePoolSize,
+            @Value("${executor.maxPoolSize}") int maxPoolSize,
+            @Value("${executor.queueSize}") int queueSize,
+            @Value("${executor.keepAliveSeconds}") long keepAliveSeconds
+    ) {
+        return new ThreadPoolExecutor(
+                corePoolSize,
+                maxPoolSize,
+                keepAliveSeconds,
+                TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>(queueSize),
+                new ThreadPoolExecutor.CallerRunsPolicy()
+        );
     }
 }
